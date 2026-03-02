@@ -18,10 +18,33 @@ import (
 func GetTodos(c *gin.Context) {
 	log.Println("[GetTodos] 收到获取待办列表请求")
 
+	var req models.GetTodoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[AddTodo] 请求参数无效: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "请求参数无效，startIndex，pageSize 为必填项",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+	if req.PageSize > 100 {
+		req.PageSize = 100 // 限制最大每页数量
+	}
+
+	query := config.GetDB().Model(&models.Todo{})
+	if req.SearchKey != nil {
+		query = query.Where("value LIKE ?", "%"+*req.SearchKey+"%")
+	}
+	// query = query.Order("created_at DESC").Offset(int(req.StartIndex)).Limit(int(req.PageSize))
+	query = query.Order("created_at DESC")
+
 	var todos []models.Todo
-	// 使用 GORM 查询 list 表中的所有记录
-	// Find 方法会扫描结果到 todos 切片
-	if err := config.GetDB().Find(&todos).Error; err != nil {
+	if err := query.Find(&todos).Error; err != nil {
 		log.Printf("[GetTodos] 查询失败: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -31,15 +54,28 @@ func GetTodos(c *gin.Context) {
 		return
 	}
 
+	// var nextIndex uint
+
+	if len(todos) > int(req.PageSize) {
+		todos = todos[req.StartIndex : req.StartIndex+req.PageSize] // 只返回 pageSize 条数据
+	}
+
+	// if len(todos) > 0 {
+	// 	nextIndex = todos[len(todos)-1].ID
+	// }
+
 	// 若没有数据，返回空数组而非 null
 	if todos == nil {
 		todos = []models.Todo{}
 	}
 
 	log.Printf("[GetTodos] 成功返回 %d 条待办事项", len(todos))
+
+	result := models.ListDataWithPagination[models.Todo]{Items: todos, TotalItems: len(todos), PageSize: req.PageSize}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    todos,
+		"data":    result,
 	})
 }
 
@@ -193,7 +229,7 @@ func DeleteTodo(c *gin.Context) {
 		"success": true,
 		"message": "删除成功",
 		"data": gin.H{
-			"id":     id,
+			"id":      id,
 			"deleted": true,
 		},
 	})

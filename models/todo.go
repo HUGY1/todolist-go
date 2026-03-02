@@ -30,3 +30,15 @@ type AddTodoRequest struct {
 	Value       string `json:"value" binding:"required"` // 待办内容，必填
 	IsCompleted *bool  `json:"isCompleted"`              // 是否完成，可选，默认 false
 }
+
+type GetTodoRequest struct {
+	StartIndex uint    `json:"startIndex" form:"startIndex" binding:"omitempty,min=0"`     // 开始索引，可选
+	PageSize   uint    `json:"pageSize" form:"pageSize" binding:"omitempty,min=1,max=100"` // 每页大小，可选
+	SearchKey  *string `json:"searchKey" form:"searchKey"`                                 // 搜索关键字
+}
+
+type ListDataWithPagination[T any] struct {
+	Items      []T  `json:"items"`
+	TotalItems int  `json:"totalItems"`
+	PageSize   uint `json:"pageSize"`
+}

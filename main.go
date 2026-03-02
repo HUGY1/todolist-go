@@ -32,6 +32,12 @@ func main() {
 	// 配置路由
 	router := routes.SetupRouter()
 
+	// fakeData := mock.CreateFakeData()
+	// for _, todo := range fakeData {
+	// 	config.GetDB().Create(&todo)
+	// }
+	// log.Println("数据库表 fakeData 假数据已插入")
+
 	// 在 goroutine 中启动 HTTP 服务，以便主协程可以监听退出信号
 	// 默认监听 8080 端口
 	go func() {

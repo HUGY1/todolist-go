@@ -79,9 +79,17 @@ go run main.go
 
 - **接口**: `POST /api/get-todo`
 - **请求方法**: POST
-- **参数**: 无
+- **参数**: 
+```json
+{
+  "searchKey": "待办内容",
+  "startIndex": 0,
+  "pageSize":100
+}
+```
 - **请求头**: `Content-Type: application/json`（可选）
 
+```
 **成功响应** (HTTP 200):
 ```json
 {
