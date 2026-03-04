@@ -4,6 +4,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"todolist/models"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,6 +20,7 @@ var DB *gorm.DB
 func InitDB() {
 	const dbName = "todolist"
 	const fileDbName = "filelist"
+	const userDbName = "userList"
 	// 连接参数（不含数据库名，用于先连接 MySQL 服务）
 	// 格式: 用户名:密码@tcp(主机:端口)/?charset=utf8mb4&parseTime=True&loc=Local
 	dsnWithoutDB := "root:lgzxp6qg@tcp(test-db-mysql.ns-wzme3ot2.svc:3306)/?charset=utf8mb4&parseTime=True&loc=Local"
@@ -51,6 +53,12 @@ func InitDB() {
 	})
 	if err != nil {
 		log.Fatalf("数据库连接失败: %v", err)
+	}
+
+	// 自动迁移（创建用户表）
+	err = DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatalf("数据库迁移失败: %v", err)
 	}
 
 	log.Println("数据库连接成功")

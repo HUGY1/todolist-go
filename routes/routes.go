@@ -37,6 +37,11 @@ func SetupRouter() *gin.Engine {
 
 		// POST /api/upload - 根据 id 删除待办事项
 		api.POST("/upload", handlers.Upload)
+
+		// POST /api/create-user - 创建用户
+		api.POST("/create-user", handlers.CreateUser)
+		// POST /api/update-user - 更新用户
+		api.POST("/update-user", handlers.UpdateUser)
 	}
 
 	return r
