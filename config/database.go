@@ -4,7 +4,6 @@ package config
 import (
 	"fmt"
 	"log"
-	"todolist/models"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -56,10 +55,10 @@ func InitDB() {
 	}
 
 	// 自动迁移（创建用户表）
-	err = DB.AutoMigrate(&models.User{})
-	if err != nil {
-		log.Fatalf("数据库迁移失败: %v", err)
-	}
+	// err = DB.AutoMigrate(&models.User{})
+	// if err != nil {
+	// 	log.Fatalf("数据库迁移失败: %v", err)
+	// }
 
 	log.Println("数据库连接成功")
 }

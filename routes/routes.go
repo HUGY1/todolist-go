@@ -4,6 +4,7 @@ package routes
 import (
 	"log"
 	"todolist/handlers"
+	middware "todolist/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,28 +22,34 @@ func SetupRouter() *gin.Engine {
 	})
 
 	// API 路由组：所有接口都以 /api 为前缀
-	api := r.Group("/api")
+	api := r.Group("")
 	{
-		// GET /api/get-todo - 查询所有待办事项
-		api.POST("/get-todo", handlers.GetTodos)
-
-		// POST /api/add-todo - 添加新的待办事项
-		api.POST("/add-todo", handlers.AddTodo)
-
-		// POST /api/update-todo/:id - 根据 id 更新待办事项状态（isCompleted 取反）
-		api.POST("/update-todo/:id", handlers.UpdateTodo)
-
-		// POST /api/del-todo/:id - 根据 id 删除待办事项
-		api.POST("/del-todo/:id", handlers.DeleteTodo)
-
-		// POST /api/upload - 根据 id 删除待办事项
-		api.POST("/upload", handlers.Upload)
-
-		// POST /api/create-user - 创建用户
-		api.POST("/create-user", handlers.CreateUser)
-		// POST /api/update-user - 更新用户
-		api.POST("/update-user", handlers.UpdateUser)
+		// GET /api/login - 登录
+		api.POST("/login", handlers.Login)
 	}
 
+	auth := api.Group("/api")
+	auth.Use(middware.AuthMiddleware())
+	{
+		// GET /api/get-todo - 查询所有待办事项
+		auth.POST("/get-todo", handlers.GetTodos)
+
+		// POST /api/add-todo - 添加新的待办事项
+		auth.POST("/add-todo", handlers.AddTodo)
+
+		// POST /api/update-todo/:id - 根据 id 更新待办事项状态（isCompleted 取反）
+		auth.POST("/update-todo/:id", handlers.UpdateTodo)
+
+		// POST /api/del-todo/:id - 根据 id 删除待办事项
+		auth.POST("/del-todo/:id", handlers.DeleteTodo)
+
+		// POST /api/upload - 根据 id 删除待办事项
+		auth.POST("/upload", handlers.Upload)
+
+		// POST /api/create-user - 创建用户
+		auth.POST("/create-user", handlers.CreateUser)
+		// POST /api/update-user - 更新用户
+		auth.POST("/update-user", handlers.UpdateUser)
+	}
 	return r
 }

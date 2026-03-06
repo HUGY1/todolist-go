@@ -11,9 +11,11 @@ import (
 	"todolist/config"
 	"todolist/models"
 	"todolist/routes"
+	"todolist/utils"
 )
 
 func main() {
+	utils.InitJWT()
 	// 初始化日志格式
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("========== Todo List API 服务启动 ==========")
@@ -24,10 +26,10 @@ func main() {
 	// 自动迁移：根据 Todo 模型创建或更新 list 表结构
 	// AutoMigrate 会创建缺失的表和列，不会删除已存在的列
 	config.GetDB().AutoMigrate(&models.File{}, &models.Todo{})
-	if err := config.GetDB().AutoMigrate(&models.Todo{}); err != nil {
+	if err := config.GetDB().AutoMigrate(&models.Todo{}, &models.User{}); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
-	log.Println("数据库表 list 已就绪")
+	log.Println("数据库表 list,users 已就绪")
 
 	// 配置路由
 	router := routes.SetupRouter()
